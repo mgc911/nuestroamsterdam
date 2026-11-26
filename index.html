@@ -155,6 +155,8 @@ path.leaflet-interactive:focus{outline:none}
 .sheet{position:absolute;z-index:500;right:max(10px,env(safe-area-inset-right,0px));bottom:calc(80px + env(safe-area-inset-bottom,0px));width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,.12);transition:transform .15s}
 .sheet:hover{transform:translateY(-2px)}.sheet:focus-visible{outline:3px solid #2b7de9;outline-offset:2px}
 .scale-walk{font:600 11px var(--sans);color:var(--fg);background:color-mix(in srgb,var(--panel) 80%,transparent);padding:1px 6px;border-radius:6px;white-space:nowrap;margin-bottom:1px}
+.scale-toggle{cursor:pointer;pointer-events:auto}.scale-toggle:focus-visible{outline:3px solid #2b7de9;outline-offset:2px;border-radius:4px}
+.scale-toggle[aria-pressed=true] .leaflet-control-scale-line{border-color:#2b7de9;color:#2b7de9}
 .geo-toast{position:absolute;z-index:600;left:50%;bottom:64px;transform:translateX(-50%);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font:13px var(--sans);width:max-content;max-width:calc(100% - 32px);box-shadow:0 4px 14px rgba(0,0,0,.15)}
 .me{pointer-events:none}
 .me .cone{position:absolute;left:-40px;top:-40px;width:80px;height:80px;transition:transform .25s ease-out;transform-origin:40px 40px;overflow:visible;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
@@ -357,7 +359,10 @@ new MutationObserver(redraw).observe(document.documentElement,{attributes:true,a
  const w=document.createElement('span');w.className='scale-walk';sc.appendChild(w);
  const upd=()=>{const el=sc.querySelector('.leaflet-control-scale-line');if(!el)return;const m=parseFloat(el.textContent)*(/km/.test(el.textContent)?1000:1);if(!m)return;
    const t=Math.round(m/83.3);w.textContent='(~'+(t<1?'1 min':t>=60?(Math.round(t/6)/10+' h').replace('.',','):t+' min')+' andando)';};
- map.on('zoomend moveend',()=>setTimeout(upd,0));upd();}}
+ map.on('zoomend moveend',()=>setTimeout(upd,0));upd();
+ L.DomEvent.disableClickPropagation(sc);sc.classList.add('scale-toggle');sc.setAttribute('role','button');sc.tabIndex=0;sc.title='Mostrar u ocultar la cuadrícula';
+ const tg=()=>document.getElementById('t-grid').click();sc.addEventListener('click',tg);sc.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();tg();}});
+ const gb=document.getElementById('t-grid');new MutationObserver(()=>sc.setAttribute('aria-pressed',gb.getAttribute('aria-pressed'))).observe(gb,{attributes:true,attributeFilter:['aria-pressed']});sc.setAttribute('aria-pressed','false');}}
 </script>
 
 </body>
