@@ -121,12 +121,19 @@ h1{font:700 18px/1.1 var(--disp);margin:0;letter-spacing:-.01em}
 .rld-zone{filter:drop-shadow(0 0 6px rgba(255,45,85,.45))}
 .geo-toast{position:absolute;z-index:600;left:50%;bottom:64px;transform:translateX(-50%);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font:13px var(--sans);width:max-content;max-width:calc(100% - 32px);box-shadow:0 4px 14px rgba(0,0,0,.15)}
 .me{pointer-events:none}
-.me .cone{position:absolute;left:-30px;top:-30px;width:60px;height:60px;transition:transform .25s ease-out;transform-origin:30px 30px}
+.me .cone{position:absolute;left:-40px;top:-40px;width:80px;height:80px;transition:transform .25s ease-out;transform-origin:40px 40px;overflow:visible;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+.me .smk circle{transform-box:fill-box;transform-origin:center;opacity:0;animation:smk 2.4s ease-out infinite}
+.me .smk .s2{animation-delay:.8s}.me .smk .s3{animation-delay:1.6s}
+@keyframes smk{0%{transform:translate(0,0) scale(.6);opacity:.85}60%{opacity:.5}100%{transform:translate(5px,-16px) scale(2.2);opacity:0}}
+.me .smk .s2{animation-name:smk2}@keyframes smk2{0%{transform:translate(0,0) scale(.6);opacity:.8}100%{transform:translate(-6px,-15px) scale(2);opacity:0}}
+.me .emb,.me .glw{transform-box:fill-box;transform-origin:center;animation:emb 1.6s ease-in-out infinite}
+@keyframes emb{50%{opacity:.7;transform:scale(1.15)}}
+.me .dot{z-index:1}
 .me .dot{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;background:#2b7de9;border:3px solid #fff;box-shadow:0 0 0 2px rgba(43,125,233,.35),0 2px 6px rgba(0,0,0,.3)}
 .me .dot::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:2px solid #2b7de9;animation:ping 2s ease-out infinite}
 @keyframes ping{from{transform:scale(.5);opacity:.8}to{transform:scale(1.4);opacity:0}}
 @media (max-width:640px){.lowz .ban small{display:none}.lowz .ban{padding:2px 8px}.lowz .ban b{font-size:12px}}
-@media (prefers-reduced-motion:reduce){.wave svg,.boat,.mill .blades,.me .dot::after,.locate.busy svg{animation:none}.compass .rose,.me .cone{transition:none}}
+@media (prefers-reduced-motion:reduce){.wave svg,.boat,.mill .blades,.me .dot::after,.locate.busy svg{animation:none}.compass .rose,.me .cone{transition:none}.me .smk circle,.me .emb,.me .glw{animation:none}.me .smk .s1{opacity:.6}}
 </style>
 </head>
 <body>
@@ -242,7 +249,7 @@ new MutationObserver(redraw).observe(document.documentElement,{attributes:true,a
 {const cbtn=document.getElementById('compass'),lbtn=document.getElementById('locate'),rose=document.getElementById('rose'),wrap=document.querySelector('.wrap'),lbl=lbtn.querySelector('span');
  let me=null,acc=null,watch=null,head=null,first=true,toastT;
  const toast=m=>{let t=wrap.querySelector('.geo-toast');if(!t){t=document.createElement('div');t.className='geo-toast';t.setAttribute('role','status');wrap.appendChild(t);}t.textContent=m;clearTimeout(toastT);toastT=setTimeout(()=>t.remove(),5000);};
- const icon=()=>L.divIcon({className:'me',iconSize:[0,0],html:'<svg class="cone" viewBox="0 0 60 60" style="display:none"><defs><radialGradient id="cg" cx="50%" cy="100%" r="100%"><stop offset="0" stop-color="#2b7de9" stop-opacity=".8"/><stop offset="1" stop-color="#2b7de9" stop-opacity=".08"/></radialGradient></defs><path d="M30 30L14 4a30 30 0 0 1 32 0z" fill="url(#cg)"/></svg><span class="dot"></span>'});
+ const icon=()=>L.divIcon({className:'me',iconSize:[0,0],html:'<svg class="cone" viewBox="0 0 80 80" aria-hidden="true"><defs><linearGradient id="jp" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c9c0aa"/><stop offset=".35" stop-color="#fbf7ee"/><stop offset=".7" stop-color="#efe7d6"/><stop offset="1" stop-color="#b5ab95"/></linearGradient><linearGradient id="jc" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a8966a"/><stop offset=".4" stop-color="#efe3c0"/><stop offset="1" stop-color="#9c8a5e"/></linearGradient><radialGradient id="je" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff3b0"/><stop offset=".4" stop-color="#ff9a2e"/><stop offset=".8" stop-color="#e0381c"/><stop offset="1" stop-color="#7a1608" stop-opacity="0"/></radialGradient><radialGradient id="jg" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff8a2a" stop-opacity=".7"/><stop offset="1" stop-color="#ff8a2a" stop-opacity="0"/></radialGradient></defs><g class="smk" fill="#e9e6f2" stroke="#b9b4c8" stroke-width=".6"><circle class="s1" cx="40" cy="12" r="3"/><circle class="s2" cx="40" cy="12" r="3.5"/><circle class="s3" cx="40" cy="12" r="2.6"/></g><path d="M37.6 40 L36.3 16 Q40 14.6 43.7 16 L42.4 40 Z" fill="url(#jp)" stroke="#8f866f" stroke-width=".6"/><path d="M37.4 33.5h5.2" stroke="#d8cfb9" stroke-width=".5"/><path d="M37 26h6M36.7 21h6.6" stroke="#e2d9c4" stroke-width=".4"/><rect x="37.6" y="36" width="4.8" height="6" rx="1" fill="url(#jc)" stroke="#8a7a52" stroke-width=".5"/><circle class="glw" cx="40" cy="15.2" r="7" fill="url(#jg)"/><ellipse class="emb" cx="40" cy="15.4" rx="3.9" ry="2.2" fill="url(#je)"/><path d="M38 15.8l.8-.8.7.9.8-1 .7.9.8-.8" stroke="#3a1a0e" stroke-width=".5" fill="none" opacity=".6"/></svg><span class="dot"></span>'});
  const applyHead=()=>{if(head==null)return;rose.style.transform=`rotate(${-head}deg)`;const c=me&&me.getElement()&&me.getElement().querySelector('.cone');if(c){c.style.display='block';c.style.transform=`rotate(${head}deg)`;}};
  const onOri=e=>{let h=null;if(typeof e.webkitCompassHeading==='number')h=e.webkitCompassHeading;else if(e.absolute&&e.alpha!=null)h=360-e.alpha;if(h==null)return;const so=(screen.orientation&&screen.orientation.angle)||window.orientation||0;head=(h+so+360)%360;applyHead();};
  const startOri=async()=>{addEventListener('ondeviceorientationabsolute' in window?'deviceorientationabsolute':'deviceorientation',onOri);
