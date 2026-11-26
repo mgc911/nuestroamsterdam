@@ -119,6 +119,9 @@ h1{font:700 18px/1.1 var(--disp);margin:0;letter-spacing:-.01em}
 .wave.sm svg{width:18px;height:11px}
 @keyframes wv{50%{transform:translate(-44%,-58%)}}
 .rld-zone{filter:drop-shadow(0 0 6px rgba(255,45,85,.45))}
+.locate{display:none!important}
+.compass.on>svg>circle{stroke:#2b7de9;stroke-width:3}
+.compass.busy>svg>circle{stroke:#2b7de9;stroke-dasharray:6 5;animation:spin 2s linear infinite;transform-origin:27px 27px}
 .geo-toast{position:absolute;z-index:600;left:50%;bottom:64px;transform:translateX(-50%);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font:13px var(--sans);width:max-content;max-width:calc(100% - 32px);box-shadow:0 4px 14px rgba(0,0,0,.15)}
 .me{pointer-events:none}
 .me .cone{position:absolute;left:-40px;top:-40px;width:80px;height:80px;transition:transform .25s ease-out;transform-origin:40px 40px;overflow:visible;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
@@ -151,7 +154,7 @@ h1{font:700 18px/1.1 var(--disp);margin:0;letter-spacing:-.01em}
     <button class="chip" id="t-transit" style="--c:var(--transit)" aria-pressed="false"><i></i>Metro y tranvía</button>
   </div>
 </header>
-<div class="wrap"><div id="map"></div><button class="compass" id="compass" type="button" aria-label="Brújula: mostrar mi posición y orientación"><svg viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="24" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/><g class="rose" id="rose"><path d="M27 6l5 21h-10z" fill="#e8445f"/><path d="M27 48l-5-21h10z" fill="#2f4f6f"/><path d="M6 27l21-4v8zM48 27l-21 4v-8z" fill="#c9b99a"/><text x="27" y="5.5" text-anchor="middle" font-size="7" font-weight="700" fill="var(--fg)" font-family="Inter,sans-serif">N</text></g></svg></button><button class="locate" id="locate" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg><span>Dónde estoy</span></button>
+<div class="wrap"><div id="map"></div><button class="compass" id="compass" type="button" aria-label="Brújula: mostrar u ocultar mi posición y orientación"><svg viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="24" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/><g class="rose" id="rose"><path d="M27 6l5 21h-10z" fill="#e8445f"/><path d="M27 48l-5-21h10z" fill="#2f4f6f"/><path d="M6 27l21-4v8zM48 27l-21 4v-8z" fill="#c9b99a"/><text x="27" y="5.5" text-anchor="middle" font-size="7" font-weight="700" fill="var(--fg)" font-family="Inter,sans-serif">N</text></g></svg></button><button class="locate" id="locate" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg><span>Dónde estoy</span></button>
 <div class="note" id="note">Plano esquemático: agua, calles y barrios aproximados. Toca un punto y usa «Abrir en Google Maps» para llegar.</div>
 <button class="fit" id="fit">Ver aeropuerto</button></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -263,8 +266,8 @@ new MutationObserver(redraw).observe(document.documentElement,{attributes:true,a
      if(first){first=false;if(map.distance(ll,[52.3728,4.8936])>30000){toast('Aún no has llegado a Amstel-Damm pillín.');}else map.setView(ll,Math.max(map.getZoom(),15));}},
     e=>{stop();toast(e.code===1?'No has dado permiso de ubicación. Actívalo en los ajustes del navegador y vuelve a probar.':'No se pudo obtener tu ubicación ahora mismo.');},
     {enableHighAccuracy:true,maximumAge:5000,timeout:20000});};
- lbtn.onclick=()=>{if(watch==null)return start();if(me&&!map.getBounds().contains(me.getLatLng()))return map.setView(me.getLatLng(),Math.max(map.getZoom(),15));stop();};
- cbtn.onclick=()=>{if(watch==null)start();else if(me)map.setView(me.getLatLng(),Math.max(map.getZoom(),15));};}
+ lbtn.onclick=()=>{if(watch==null)return start();if(me&&!map.getBounds().contains(me.getLatLng())&&map.distance(me.getLatLng(),[52.3728,4.8936])<=30000)return map.setView(me.getLatLng(),Math.max(map.getZoom(),15));stop();};
+ cbtn.onclick=()=>lbtn.onclick();new MutationObserver(()=>{cbtn.classList.toggle('on',lbtn.classList.contains('on'));cbtn.classList.toggle('busy',lbtn.classList.contains('busy'));cbtn.setAttribute('aria-pressed',lbtn.classList.contains('on'));}).observe(lbtn,{attributes:true,attributeFilter:['class']});}
 {const z=()=>document.getElementById('map').classList.toggle('lowz',map.getZoom()<14);map.on('zoomend',z);z();}
 
 {const sel='.compass,.locate,.note,.fit,.geo-toast,.leaflet-control-zoom,.leaflet-control-scale,.leaflet-control-attribution';
