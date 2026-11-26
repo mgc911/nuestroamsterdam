@@ -259,12 +259,13 @@ new MutationObserver(redraw).observe(document.documentElement,{attributes:true,a
 {const z=()=>document.getElementById('map').classList.toggle('lowz',map.getZoom()<14);map.on('zoomend',z);z();}
 
 {const sel='.compass,.locate,.note,.fit,.geo-toast,.leaflet-control-zoom,.leaflet-control-scale,.leaflet-control-attribution';
+ let cur=null,raf=0;
  const clear=()=>document.querySelectorAll('.under-pop').forEach(e=>e.classList.remove('under-pop'));
- let raf=0;const chk=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{const pe=document.querySelector('.leaflet-popup');if(!pe)return clear();const a=pe.getBoundingClientRect();
-   document.querySelectorAll(sel).forEach(e=>{e.classList.remove('under-pop');const b=e.getBoundingClientRect();if(b.width&&a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top)e.classList.add('under-pop');});});};
- map.on('popupopen',()=>{const c=document.getElementById('chips');if(c&&c.classList.contains('open'))document.getElementById('layers-btn').click();chk();setTimeout(chk,300);});
- map.on('move zoomend moveend',()=>{if(document.querySelector('.leaflet-popup'))chk();});
- map.on('popupclose',()=>setTimeout(chk,0));}
+ const chk=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{clear();const pe=cur&&cur.getElement();if(!pe||!pe.isConnected)return;const a=pe.getBoundingClientRect();
+   document.querySelectorAll(sel).forEach(e=>{const b=e.getBoundingClientRect();if(b.width&&a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top)e.classList.add('under-pop');});});};
+ map.on('popupopen',e=>{cur=e.popup;const c=document.getElementById('chips');if(c&&c.classList.contains('open'))document.getElementById('layers-btn').click();chk();setTimeout(chk,300);});
+ map.on('move zoomend moveend',()=>{if(cur)chk();});
+ map.on('popupclose',e=>{if(e.popup===cur)cur=null;cancelAnimationFrame(raf);clear();});}
 
 {const CW=[[52.36729, 4.88967], [52.37005, 4.88806], [52.37312, 4.8888], [52.37579, 4.89072], [52.37874, 4.89396], [52.36479, 4.896], [52.36565, 4.90051], [52.36677, 4.88501], [52.37547, 4.88604], [52.37846, 4.88877], [52.3643, 4.88936], [52.37043, 4.88274], [52.3616, 4.89595], [52.36266, 4.90198], [52.38126, 4.8871], [52.38325, 4.88357], [52.37387, 4.87709], [52.37581, 4.88064], [52.3705, 4.87735], [52.36535, 4.88055], [52.36176, 4.88697], [52.36841, 4.89627], [52.37091, 4.89866], [52.37381, 4.89831], [52.37564, 4.90203], [52.37163, 4.90443], [52.36513, 4.9052], [52.36964, 4.91186]],BW=[[52.4025, 4.862], [52.3878, 4.918], [52.3858, 4.93], [52.38, 4.95], [52.3755, 4.9075], [52.354, 4.9055]],wl=L.layerGroup().addTo(map);
  const svg='<svg width="28" height="16" viewBox="0 0 28 16" aria-hidden="true"><path d="M2 6q3-4 6 0t6 0 6 0 6 0M2 12q3-4 6 0t6 0 6 0 6 0" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".9"/></svg>';
