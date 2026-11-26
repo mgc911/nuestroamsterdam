@@ -112,6 +112,7 @@ h1{font:700 18px/1.1 var(--disp);margin:0;letter-spacing:-.01em}
 .locate svg{width:16px;height:16px}
 .locate.on{background:#2b7de9;color:#fff;border-color:#2b7de9}
 .locate.busy svg{animation:spin 1.2s linear infinite}
+.under-pop{opacity:0!important;pointer-events:none!important;transition:opacity .15s}
 .geo-toast{position:absolute;z-index:600;left:50%;bottom:64px;transform:translateX(-50%);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font:13px var(--sans);width:max-content;max-width:calc(100% - 32px);box-shadow:0 4px 14px rgba(0,0,0,.15)}
 .me{pointer-events:none}
 .me .cone{position:absolute;left:-30px;top:-30px;width:60px;height:60px;transition:transform .25s ease-out;transform-origin:30px 30px}
@@ -245,12 +246,20 @@ new MutationObserver(redraw).observe(document.documentElement,{attributes:true,a
    watch=navigator.geolocation.watchPosition(p=>{const ll=[p.coords.latitude,p.coords.longitude];lbtn.classList.remove('busy');lbtn.classList.add('on');lbl.textContent='Siguiéndote';
      if(!me){me=L.marker(ll,{icon:icon(),interactive:false,keyboard:false,zIndexOffset:2000}).addTo(map);acc=L.circle(ll,{radius:p.coords.accuracy,color:'#2b7de9',weight:1,fillOpacity:.1,interactive:false}).addTo(map);}else{me.setLatLng(ll);acc.setLatLng(ll).setRadius(p.coords.accuracy);}
      if(p.coords.heading!=null&&!isNaN(p.coords.heading)&&p.coords.speed>1)head=p.coords.heading;applyHead();
-     if(first){first=false;map.setView(ll,Math.max(map.getZoom(),15));}},
+     if(first){first=false;if(map.distance(ll,[52.3728,4.8936])>30000){toast('Aún no has llegado a Amstel-Damm pillín.');}else map.setView(ll,Math.max(map.getZoom(),15));}},
     e=>{stop();toast(e.code===1?'No has dado permiso de ubicación. Actívalo en los ajustes del navegador y vuelve a probar.':'No se pudo obtener tu ubicación ahora mismo.');},
     {enableHighAccuracy:true,maximumAge:5000,timeout:20000});};
  lbtn.onclick=()=>{if(watch==null)return start();if(me&&!map.getBounds().contains(me.getLatLng()))return map.setView(me.getLatLng(),Math.max(map.getZoom(),15));stop();};
  cbtn.onclick=()=>{if(watch==null)start();else if(me)map.setView(me.getLatLng(),Math.max(map.getZoom(),15));};}
 {const z=()=>document.getElementById('map').classList.toggle('lowz',map.getZoom()<14);map.on('zoomend',z);z();}
+
+{const sel='.compass,.locate,.note,.fit,.geo-toast,.leaflet-control-zoom,.leaflet-control-scale,.leaflet-control-attribution';
+ const clear=()=>document.querySelectorAll('.under-pop').forEach(e=>e.classList.remove('under-pop'));
+ let raf=0;const chk=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{const pe=document.querySelector('.leaflet-popup');if(!pe)return clear();const a=pe.getBoundingClientRect();
+   document.querySelectorAll(sel).forEach(e=>{e.classList.remove('under-pop');const b=e.getBoundingClientRect();if(b.width&&a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top)e.classList.add('under-pop');});});};
+ map.on('popupopen',()=>{const c=document.getElementById('chips');if(c&&c.classList.contains('open'))document.getElementById('layers-btn').click();chk();setTimeout(chk,300);});
+ map.on('move zoomend moveend',()=>{if(document.querySelector('.leaflet-popup'))chk();});
+ map.on('popupclose',()=>setTimeout(chk,0));}
 </script>
 
 </body>
