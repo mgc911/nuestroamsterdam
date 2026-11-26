@@ -201,8 +201,6 @@ function drawBase(){
   B.streets.forEach(s=>{const w=s.r===0?5:s.r===1?4:s.r===2?3:2.5;
     L.polyline(s.p,{color:sc,weight:w+2,opacity:1,interactive:false}).addTo(base);
     L.polyline(s.p,{color:s.r===0?col('motorway'):st,weight:w,opacity:1}).bindTooltip(s.n,{sticky:true}).addTo(base);});
-  L.polyline([[52.3818,4.8998],[52.3930,4.8960],[52.4003,4.8925]],{color:col('ferryline'),weight:2,dashArray:'5 6',weight:4}).addTo(base)
-   .bindTooltip('Ferry gratis F4 desde Centraal · 15 min',{sticky:true});
   L.polyline([[52.3105,4.7683],[52.3350,4.7900],[52.3890,4.8380],[52.3800,4.8700],[52.3791,4.9003]],{color:rt,weight:2,dashArray:'2 6',weight:4}).addTo(base)
    .bindTooltip('Tren Schiphol a Centraal · 15 min',{sticky:true});
   const dk=matchMedia('(prefers-color-scheme: dark)').matches&&document.documentElement.dataset.theme!=='light'||document.documentElement.dataset.theme==='dark';
