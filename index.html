@@ -17,7 +17,7 @@
 /* Layout: barra de capas arriba, mapa a pantalla completa debajo */
 :root{--bg:#fbf3e4;--land:#fbf3e4;--dots:#ecdcc0;--wlabel:#ffffff;--panel:#ffffff;--fg:#14202b;--muted:#5b6b78;--line:#d6ddd6;
 --water:#5bb6ea;--street:#ffffff;--streetcase:#e6d6b8;--motorway:#f2c66d;--park:#a9d98c;--route:#5b6b78;--ferryline:#e8445f;
---mine:#d8312f;--rest:#e0861a;--poi:#2a74ab;--roof:#8a4fbf;--coffee:#2e9a3f;--taxi:#f2c200;--market:#b5651d;--metro:#d6262d;--transit:#1d5fa8;--routes:#0f8a8a;--ferry:#0f8a8a;--train:#ffc917;--sans:Inter,system-ui,sans-serif;--disp:"Space Grotesk",Inter,system-ui,sans-serif}
+--mine:#d8312f;--rest:#e0861a;--poi:#2a74ab;--roof:#8a4fbf;--coffee:#2e9a3f;--taxi:#f2c200;--market:#b5651d;--metro:#d6262d;--transit:#1d5fa8;--routes:#0f8a8a;--gridc:#7a8794;--ferry:#0f8a8a;--train:#ffc917;--sans:Inter,system-ui,sans-serif;--disp:"Space Grotesk",Inter,system-ui,sans-serif}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141b21;--land:#17212a;--dots:#22303b;--wlabel:#cfe8f7;--panel:#1c252e;--fg:#e7edf2;--muted:#9aabb8;--line:#2c3945;--water:#2a6a96;--street:#3a4855;--streetcase:#141b21;--motorway:#8a6a2a;--park:#22382a;--route:#8fa1af;--roof:#b98ae0;--coffee:#5cc46b;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#141b21;--land:#17212a;--dots:#22303b;--wlabel:#cfe8f7;--panel:#1c252e;--fg:#e7edf2;--muted:#9aabb8;--line:#2c3945;--water:#2a6a96;--street:#3a4855;--streetcase:#141b21;--motorway:#8a6a2a;--park:#22382a;--route:#8fa1af;--roof:#b98ae0;--coffee:#5cc46b;color-scheme:dark}
 html,body{height:100%}
@@ -185,6 +185,7 @@ path.leaflet-interactive:focus{outline:none}
     <button class="chip" id="t-market" style="--c:var(--market)" aria-pressed="false"><i></i>Mercadillos</button>
     <button class="chip" id="t-transit" style="--c:var(--transit)" aria-pressed="false"><i></i>Metro y tranvía</button>
     <button class="chip" id="t-route" style="--c:var(--routes)" aria-pressed="false"><i></i>Rutas</button>
+    <button class="chip" id="t-grid" style="--c:var(--gridc)" aria-pressed="false"><i></i>Cuadrícula</button>
   </div>
 </header>
 <div class="wrap"><div id="map"></div><button class="compass" id="compass" type="button" aria-label="Brújula: mostrar u ocultar mi posición y orientación"><svg viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="24" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/><g class="rose" id="rose"><path d="M27 6l5 21h-10z" fill="#e8445f"/><path d="M27 48l-5-21h10z" fill="#2f4f6f"/><path d="M6 27l21-4v8zM48 27l-21 4v-8z" fill="#c9b99a"/><text x="27" y="5.5" text-anchor="middle" font-size="7" font-weight="700" fill="var(--fg)" font-family="Inter,sans-serif">N</text></g></svg></button><button class="locate" id="locate" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg><span>Dónde estoy</span></button>
@@ -339,6 +340,17 @@ new MutationObserver(redraw).observe(document.documentElement,{attributes:true,a
  addEventListener('keydown',e=>{if(e.key==='Escape'&&!box.hidden)open(false);});
  map.on('click',()=>{if(!box.hidden)open(false);});
  load();}
+
+{const g=L.layerGroup(),b=document.getElementById('t-grid');let on=false;
+ const draw=()=>{g.clearLayers();if(!on)return;const el=document.querySelector('.leaflet-control-scale-line');if(!el)return;
+   const m=parseFloat(el.textContent)*(/km/.test(el.textContent)?1000:1);if(!m)return;
+   const bd=map.getBounds().pad(.1),c=map.getCenter().lat,dl=m/110574,dg=m/(111320*Math.cos(c*Math.PI/180));
+   const o=[52.3728,4.8936];const fg=getComputedStyle(document.documentElement).getPropertyValue('--fg').trim()||'#333';
+   const st={color:fg,weight:1,opacity:.13,interactive:false};let n=0;
+   for(let la=o[0]+Math.floor((bd.getSouth()-o[0])/dl)*dl;la<=bd.getNorth()&&n<200;la+=dl,n++)L.polyline([[la,bd.getWest()],[la,bd.getEast()]],st).addTo(g);
+   for(let lo=o[1]+Math.floor((bd.getWest()-o[1])/dg)*dg;lo<=bd.getEast()&&n<400;lo+=dg,n++)L.polyline([[bd.getSouth(),lo],[bd.getNorth(),lo]],st).addTo(g);};
+ b.onclick=()=>{on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on);on?g.addTo(map):map.removeLayer(g);setTimeout(draw,0);};
+ map.on('moveend zoomend',()=>setTimeout(draw,0));}
 </script>
 
 </body>
