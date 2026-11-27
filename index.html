@@ -301,7 +301,7 @@ const city=L.latLngBounds([...D.mine.filter(p=>p.k!=='plane'),...D.rest,...D.poi
 const all=L.latLngBounds([...D.mine,...D.rest,...D.poi,...D.roof,...D.coffee,...D.taxi].map(p=>[p.lat,p.lng]));
 map.fitBounds(city,{padding:[20,20]});
 let wide=false;
-document.getElementById('fit').onclick=e=>{wide=!wide;map.fitBounds(wide?all:city,{padding:[30,30]});e.target.textContent=wide?'Ver centro':'Ver aeropuerto';};
+document.getElementById('fit').onclick=e=>{wide=!wide;map.fitBounds(wide?all:city,{padding:[30,30]});e.target.textContent=wide?'Ver centro':'Ver aeropuerto';if(wide){if(!map.hasLayer(layers.mine))document.getElementById('t-mine').click();const ap=D.mine.find(q=>q.k==='plane');let mk=null;layers.mine.eachLayer(l=>{if(!mk&&l.getLatLng&&l.getLatLng().equals([ap.lat,ap.lng]))mk=l;});if(mk)map.once('moveend',()=>setTimeout(()=>mk.openPopup(),50));}else map.closePopup();};
 
 {const btn=document.getElementById('layers-btn'),box=document.getElementById('chips'),cnt=document.getElementById('layers-count');
  const upd=()=>{cnt.textContent=box.querySelectorAll('.chip[aria-pressed="true"]').length;};
